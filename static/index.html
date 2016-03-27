@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html ng-app="raspicamviewer">
+<head>
+    <title>EPICS Raspberry Pi Camera</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/scripts/style.css">
+
+    <!-- Angular JS -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+    
+    <script type="text/javascript" src="/scripts/script.js"></script>
+</head>
+<body>
+<div class="container">
+<h1>EPICS Raspberry PI Camera</h1>
+
+<!-- The camera part -->
+<div class="col-md-9 col-md-push-3" ng-controller="PhotoCtrl">
+    <button class="btn btn-success" type="submit" ng-click="acquirePhoto()">Acquire photo</button>
+    <button class="btn btn-danger" type="submit" ng-click="stopContinuous()">Stop continuous</button>
+    Last refresh: {{timestamp}}
+    <img ng-src="{{imageUrl}}" alt="Image" class="img-thumbnail camera-image" imageonload="imageLoaded()">
+</div>
+
+<!-- Settings panel -->
+<div class="col-md-3 col-md-pull-9">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form ng-controller="SettingCtrl">
+                <label>Camera open: 
+                    <!-- This one shows when the camera is open -->
+                    <span class="glyphicon glyphicon-eye-open" ng-show="cameraState"></span>
+                    <!-- This one shows when the camera is closed -->
+                    <span class="glyphicon glyphicon-eye-close" ng-show="!cameraState"></span>
+                </label>
+                <button class="btn btn-default btn-refresh" alt="Refresh" ng-click="getAllSettings()"><span class="glyphicon glyphicon-refresh"></span></button>
+                <!-- All integer input groups -->
+                <div class='form-group' ng-repeat='row in integerFields'>
+                    <label for='{{row.name}}'>{{row.title}}</label>
+                    <input type='number' ng-change='updateSetting(row)' class='form-control' id='{{row.name}}' min='{{row.min}}' max='{{row.max}}' step='{{row.step}}' ng-model='row.value' ng-disabled="{{row.disabled}}">
+                </div>
+
+                <!-- All enum input fields -->
+                <div class="form-group" ng-repeat='row in enumFields'>
+                    <label for="{{row.name}}">{{row.title}}</label>
+
+                    <select class="form-control" id="{{row.name}}" ng-model="row.value" ng-change='updateSetting(row)' ng-options="key as value for (key, value) in row.options" ng-disabled="{{row.disabled}}">
+                    </select>
+                </div>
+
+                <!-- All boolean input fields -->
+                <div class='form-group' ng-repeat='row in booleanFields'>
+                    <label for='{{row.name}}'>{{row.title}}</label><br>
+                    <label>
+                        <input ng-change='updateSetting(row)' id='{{row.name}}' ng-model='row.value' ng-true-value="1" ng-false-value="0" type='checkbox' ng-disabled="{{row.disabled}}"> {{row.value ? 'Enabled' : 'Disabled'}}
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
